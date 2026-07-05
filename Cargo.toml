@@ -4,3 +4,8 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+tokio = { version = "1.23", features = ["full"] }
+pretty_env_logger = "0.5"
+log = "0.4"
+clap = { version = "4.5", features = ["derive"] }
+flate2 = "1.1.9"
