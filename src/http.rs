@@ -60,7 +60,7 @@ impl Request {
                     if line.is_empty() {
                         break;
                     } else {
-                        let parts = line.split(" ").collect::<Vec<_>>();
+                        let parts = line.split(": ").collect::<Vec<_>>();
                         headers.insert(parts[0].to_string(), parts[1].to_string());
                     }
                 }
@@ -71,7 +71,7 @@ impl Request {
             }
         }
 
-        let body = if let Some(content_length) = headers.get("content_length") {
+        let body = if let Some(content_length) = headers.get("Content-Length") {
             let length = usize::from_str_radix(content_length, 10).unwrap();
             let mut body_buf = Vec::with_capacity(length);
             body_buf.resize(length, 0);
@@ -92,13 +92,14 @@ impl Request {
     pub(crate) fn accept_encoding(&self) -> HashSet<Encoding> {
         let mut out = HashSet::new();
 
-        if let Some(raw) = self.headers.get("accept_encoding") {
+        if let Some(raw) = self.headers.get("Accept-Encoding") {
             for part in raw.split(",").map(|e| e.trim()).collect::<Vec<_>>() {
                 out.insert(Encoding::from(part));
             }
         }
         out
     }
+
     pub(crate) fn is_final(&self) -> bool {
         self.headers
             .get("Connection")
@@ -116,7 +117,7 @@ pub(crate) enum ResponseCode {
 impl ResponseCode {
     fn to_string(&self) -> &str {
         match self {
-            Self::Ok => "Ok",
+            Self::Ok => "OK",
             Self::Created => "Created",
             Self::NotFound => "Not Found",
         }
@@ -154,7 +155,7 @@ pub(crate) enum Encoding {
 impl From<&str> for Encoding {
     fn from(value: &str) -> Self {
         match value {
-            "Gzip" => Self::Gzip,
+            "gzip" => Self::Gzip,
             other => Self::Unkown(other.to_string()),
         }
     }
@@ -196,7 +197,7 @@ impl Response {
             vec![]
         };
 
-        if let Some((body_content, body_encoding, body_content_type)) = &self.body {
+        if let Some((_body_content, body_encoding, body_content_type)) = &self.body {
             rendered
                 .push_str(format!("Content-Type: {}\r\n", body_content_type.to_string()).as_str());
             rendered.push_str(format!("Content-Length: {}\r\n", body_bytes.len()).as_str());
