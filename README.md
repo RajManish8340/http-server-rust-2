@@ -28,8 +28,8 @@ This server listens on `127.0.0.1:4221` and handles HTTP/1.1 requests. It suppor
 
 ```bash
 cargo run --directory /tmp/
-or
 ```
+or if you want default dir as root of the project
 ```bash
 cargo run
 ```
